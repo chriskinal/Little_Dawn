@@ -6259,6 +6259,438 @@
                         "children": [
                             {
                                 "children": [],
+                                "depends_on": "SOC_TWAI_SUPPORTED",
+                                "help": "This configuration option used to bypass the conflict check mechanism with legacy code.",
+                                "id": "TWAI_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "TWAI_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy driver conflict check",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "IDF_TARGET_ESP32 && SOC_TWAI_SUPPORTED",
+                                "help": "When the bus-off condition is reached, the REC should be reset to 0 and frozen (via LOM) by the\ndriver's ISR. However on the ESP32, there is an edge case where the REC will increase before the\ndriver's ISR can respond in time (e.g., due to the rapid occurrence of bus errors), thus causing the\nREC to be non-zero after bus-off. A non-zero REC can prevent bus-off recovery as the bus-off recovery\ncondition is that both TEC and REC become 0. Enabling this option will add a workaround in the driver\nto forcibly reset REC to zero on reaching bus-off.",
+                                "id": "TWAI_ERRATA_FIX_BUS_OFF_REC",
+                                "name": "TWAI_ERRATA_FIX_BUS_OFF_REC",
+                                "range": null,
+                                "title": "Add SW workaround for REC change during bus-off",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "IDF_TARGET_ESP32 && SOC_TWAI_SUPPORTED",
+                                "help": "On the ESP32, when a transmit interrupt occurs, and interrupt register is read on the same APB clock\ncycle, the transmit interrupt could be lost. Enabling this option will add a workaround that checks the\ntransmit buffer status bit to recover any lost transmit interrupt.",
+                                "id": "TWAI_ERRATA_FIX_TX_INTR_LOST",
+                                "name": "TWAI_ERRATA_FIX_TX_INTR_LOST",
+                                "range": null,
+                                "title": "Add SW workaround for TX interrupt lost errata",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "IDF_TARGET_ESP32 && SOC_TWAI_SUPPORTED",
+                                "help": "On the ESP32, when receiving a data or remote frame, if a bus error occurs in the data or CRC field,\nthe data of the next received frame could be invalid. Enabling this option will add a workaround that\nwill reset the peripheral on detection of this errata condition. Note that if a frame is transmitted on\nthe bus whilst the reset is ongoing, the message will not be receive by the peripheral sent on the bus\nduring the reset, the message will be lost.",
+                                "id": "TWAI_ERRATA_FIX_RX_FRAME_INVALID",
+                                "name": "TWAI_ERRATA_FIX_RX_FRAME_INVALID",
+                                "range": null,
+                                "title": "Add SW workaround for invalid RX frame errata",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "IDF_TARGET_ESP32 && SOC_TWAI_SUPPORTED",
+                                "help": "On the ESP32, when the RX FIFO overruns and the RX message counter maxes out at 64 messages, the entire\nRX FIFO is no longer recoverable. Enabling this option will add a workaround that resets the peripheral\non detection of this errata condition. Note that if a frame is being sent on the bus during the reset\nbus during the reset, the message will be lost.",
+                                "id": "TWAI_ERRATA_FIX_RX_FIFO_CORRUPT",
+                                "name": "TWAI_ERRATA_FIX_RX_FIFO_CORRUPT",
+                                "range": null,
+                                "title": "Add SW workaround for RX FIFO corruption errata",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "(IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32C3) && SOC_TWAI_SUPPORTED",
+                                "help": "When in the listen only mode, the TWAI controller must not influence the TWAI bus (i.e., must not send\nany dominant bits). However, while in listen only mode on the ESP32/ESP32-S2/ESP32-S3/ESP32-C3, the\nTWAI controller will still transmit dominant bits when it detects an error (i.e., as part of an active\nerror frame). Enabling this option will add a workaround that forces the TWAI controller into an error\npassive state on initialization, thus preventing any dominant bits from being sent.",
+                                "id": "TWAI_ERRATA_FIX_LISTEN_ONLY_DOM",
+                                "name": "TWAI_ERRATA_FIX_LISTEN_ONLY_DOM",
+                                "range": null,
+                                "title": "Add SW workaround for listen only transmits dominant bit errata",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_TWAI_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-twai-driver-configurations",
+                        "title": "Legacy TWAI Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_DAC_SUPPORTED",
+                                "help": "If this is set, the ADC2 driver will disable the output of the DAC corresponding to the specified\nchannel. This is the default value.\n\nFor testing, disable this option so that we can measure the output of DAC by internal ADC.",
+                                "id": "ADC_DISABLE_DAC",
+                                "name": "ADC_DISABLE_DAC",
+                                "range": null,
+                                "title": "Disable DAC when ADC2 is used on GPIO 25 and 26",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": "Whether to suppress the deprecation warnings when using legacy adc driver (driver/adc.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "ADC_SUPPRESS_DEPRECATE_WARN",
+                                "name": "ADC_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "ADC_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "ADC_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "IDF_TARGET_ESP32",
+                                        "help": "Some ESP32s have Two Point calibration values burned into eFuse BLOCK3.\nThis option will allow the ADC calibration component to characterize the\nADC-Voltage curve using Two Point values if they are available.",
+                                        "id": "ADC_CAL_EFUSE_TP_ENABLE",
+                                        "name": "ADC_CAL_EFUSE_TP_ENABLE",
+                                        "range": null,
+                                        "title": "Use Two Point Values",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "IDF_TARGET_ESP32",
+                                        "help": "Some ESP32s have Vref burned into eFuse BLOCK0. This option will allow\nthe ADC calibration component to characterize the ADC-Voltage curve using\neFuse Vref if it is available.",
+                                        "id": "ADC_CAL_EFUSE_VREF_ENABLE",
+                                        "name": "ADC_CAL_EFUSE_VREF_ENABLE",
+                                        "range": null,
+                                        "title": "Use eFuse Vref",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "IDF_TARGET_ESP32",
+                                        "help": "This option will allow the ADC calibration component to use Lookup Tables\nto correct for non-linear behavior in 11db attenuation. Other attenuations\ndo not exhibit non-linear behavior hence will not be affected by this option.",
+                                        "id": "ADC_CAL_LUT_ENABLE",
+                                        "name": "ADC_CAL_LUT_ENABLE",
+                                        "range": null,
+                                        "title": "Use Lookup Tables",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "Whether to suppress the deprecation warnings when using legacy adc calibration\ndriver (esp_adc_cal.h).\nIf you want to continue using the legacy driver, and don't want to see related\ndeprecation warnings, you can enable this option.",
+                                        "id": "ADC_CALI_SUPPRESS_DEPRECATE_WARN",
+                                        "name": "ADC_CALI_SUPPRESS_DEPRECATE_WARN",
+                                        "range": null,
+                                        "title": "Suppress legacy driver deprecated warning",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "component-config-driver-configurations-legacy-adc-driver-configuration-legacy-adc-calibration-configuration",
+                                "title": "Legacy ADC Calibration Configuration",
+                                "type": "menu"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "component-config-driver-configurations-legacy-adc-driver-configuration",
+                        "title": "Legacy ADC Driver Configuration",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_DAC_SUPPORTED",
+                                "help": "Whether to suppress the deprecation warnings when using legacy dac driver (driver/dac.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "DAC_SUPPRESS_DEPRECATE_WARN",
+                                "name": "DAC_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_DAC_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "DAC_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "DAC_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_DAC_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-dac-driver-configurations",
+                        "title": "Legacy DAC Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_MCPWM_SUPPORTED",
+                                "help": "Whether to suppress the deprecation warnings when using legacy MCPWM driver (driver/mcpwm.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "MCPWM_SUPPRESS_DEPRECATE_WARN",
+                                "name": "MCPWM_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_MCPWM_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "MCPWM_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "MCPWM_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-mcpwm-driver-configurations",
+                        "title": "Legacy MCPWM Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_GPTIMER_SUPPORTED",
+                                "help": "Whether to suppress the deprecation warnings when using legacy timer group driver (driver/timer.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "GPTIMER_SUPPRESS_DEPRECATE_WARN",
+                                "name": "GPTIMER_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_GPTIMER_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "GPTIMER_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "GPTIMER_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-timer-group-driver-configurations",
+                        "title": "Legacy Timer Group Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_RMT_SUPPORTED",
+                                "help": "Whether to suppress the deprecation warnings when using legacy rmt driver (driver/rmt.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "RMT_SUPPRESS_DEPRECATE_WARN",
+                                "name": "RMT_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_RMT_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "RMT_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "RMT_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-rmt-driver-configurations",
+                        "title": "Legacy RMT Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_I2S_SUPPORTED",
+                                "help": "Whether to suppress the deprecation warnings when using legacy i2s driver (driver/i2s.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "I2S_SUPPRESS_DEPRECATE_WARN",
+                                "name": "I2S_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_I2S_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "I2S_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "I2S_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_I2S_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-i2s-driver-configurations",
+                        "title": "Legacy I2S Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_I2C_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "I2C_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "I2C_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_I2C_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-i2c-driver-configurations",
+                        "title": "Legacy I2C Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_PCNT_SUPPORTED",
+                                "help": "whether to suppress the deprecation warnings when using legacy PCNT driver (driver/pcnt.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "PCNT_SUPPRESS_DEPRECATE_WARN",
+                                "name": "PCNT_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_PCNT_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "PCNT_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "PCNT_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_PCNT_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-pcnt-driver-configurations",
+                        "title": "Legacy PCNT Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_SDM_SUPPORTED",
+                                "help": "whether to suppress the deprecation warnings when using legacy SDM driver (driver/sigmadelta.h).\nIf you want to continue using the legacy driver, and don't want to see related deprecation warnings,\nyou can enable this option.",
+                                "id": "SDM_SUPPRESS_DEPRECATE_WARN",
+                                "name": "SDM_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_SDM_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "SDM_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "SDM_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_SDM_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-sdm-driver-configurations",
+                        "title": "Legacy SDM Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_TEMP_SENSOR_SUPPORTED",
+                                "help": "whether to suppress the deprecation warnings when using legacy temperature sensor driver\n(driver/temp_sensor.h). If you want to continue using the legacy driver,\nand don't want to see related deprecation warnings, you can enable this option.",
+                                "id": "TEMP_SENSOR_SUPPRESS_DEPRECATE_WARN",
+                                "name": "TEMP_SENSOR_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_TEMP_SENSOR_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "TEMP_SENSOR_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "TEMP_SENSOR_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_TEMP_SENSOR_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-temperature-sensor-driver-configurations",
+                        "title": "Legacy Temperature Sensor Driver Configurations",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "SOC_TOUCH_SENSOR_SUPPORTED",
+                                "help": "whether to suppress the deprecation warnings when using legacy touch sensor driver\n(driver/touch_sensor.h). If you want to continue using the legacy driver,\nand don't want to see related deprecation warnings, you can enable this option.",
+                                "id": "TOUCH_SUPPRESS_DEPRECATE_WARN",
+                                "name": "TOUCH_SUPPRESS_DEPRECATE_WARN",
+                                "range": null,
+                                "title": "Suppress legacy driver deprecated warning",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "SOC_TOUCH_SENSOR_SUPPORTED",
+                                "help": "This configuration option allows the user to bypass the conflict check mechanism with legacy code.",
+                                "id": "TOUCH_SKIP_LEGACY_CONFLICT_CHECK",
+                                "name": "TOUCH_SKIP_LEGACY_CONFLICT_CHECK",
+                                "range": null,
+                                "title": "Skip legacy conflict check",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_TOUCH_SENSOR_SUPPORTED",
+                        "id": "component-config-driver-configurations-legacy-touch-sensor-driver-configurations",
+                        "title": "Legacy Touch Sensor Driver Configurations",
+                        "type": "menu"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-driver-configurations",
+                "title": "Driver Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
                                 "depends_on": "EFUSE_CUSTOM_TABLE",
                                 "help": "Name of the custom eFuse CSV filename. This path is evaluated\nrelative to the project root directory.",
                                 "id": "EFUSE_CUSTOM_TABLE_FILENAME",
@@ -6395,6 +6827,140 @@
                 "children": [
                     {
                         "children": [],
+                        "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                        "help": "Place Analog Comparator ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "ANA_CMPR_ISR_HANDLER_IN_IRAM",
+                        "name": "ANA_CMPR_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place Analog Comparator ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                        "help": "Place Analog Comparator control functions (like ana_cmpr_set_internal_reference) into IRAM,\nso that these functions can be IRAM-safe and able to be called in an IRAM interrupt context.\nEnabling this option can improve driver performance as well.",
+                        "id": "ANA_CMPR_CTRL_FUNC_IN_IRAM",
+                        "name": "ANA_CMPR_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place Analog Comparator control functions into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                        "help": "Enable this option to allow the Analog Comparator Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the comparator functionality is still required to operate correctly.",
+                        "id": "ANA_CMPR_ISR_CACHE_SAFE",
+                        "name": "ANA_CMPR_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow Analog Comparator ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                        "help": "This will ensure the driver object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "ANA_CMPR_OBJ_CACHE_SAFE",
+                        "name": "ANA_CMPR_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                        "help": "If enabled, the driver component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option by caution, as it will increase the binary size.",
+                        "id": "ANA_CMPR_ENABLE_DEBUG_LOG",
+                        "name": "ANA_CMPR_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_ANA_CMPR_SUPPORTED",
+                "id": "component-config-esp-driver-analog-comparator-configurations",
+                "title": "ESP-Driver:Analog Comparator Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_BITSCRAMBLER_SUPPORTED",
+                        "help": "Place BitScrambler control functions into IRAM for better performance and fewer cache misses.",
+                        "id": "BITSCRAMBLER_CTRL_FUNC_IN_IRAM",
+                        "name": "BITSCRAMBLER_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place BitScrambler control functions in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_BITSCRAMBLER_SUPPORTED",
+                        "help": "This will ensure the BitScrambler object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "BITSCRAMBLER_OBJ_CACHE_SAFE",
+                        "name": "BITSCRAMBLER_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_BITSCRAMBLER_SUPPORTED",
+                "id": "component-config-bitscrambler-configurations",
+                "title": "BitScrambler Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_DAC_SUPPORTED",
+                        "help": "Place DAC control functions (e.g. 'dac_oneshot_output_voltage') into IRAM,\nso that this function can be IRAM-safe and able to be called in the other IRAM interrupt context.\nEnabling this option can improve driver performance as well.",
+                        "id": "DAC_CTRL_FUNC_IN_IRAM",
+                        "name": "DAC_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place DAC control functions into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_DAC_SUPPORTED",
+                        "help": "Ensure the DAC interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "DAC_ISR_IRAM_SAFE",
+                        "name": "DAC_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "DAC ISR IRAM-Safe",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_DAC_SUPPORTED",
+                        "help": "whether to enable the debug log message for DAC driver.\nNote that, this option only controls the DAC driver log, won't affect other drivers.",
+                        "id": "DAC_ENABLE_DEBUG_LOG",
+                        "name": "DAC_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable debug log",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_DAC_DMA_16BIT_ALIGN && SOC_DAC_SUPPORTED",
+                        "help": "Whether to left shift the continuous data to align every bytes to 16 bits in the driver.\nOn ESP32, although the DAC resolution is only 8 bits,\nthe hardware requires 16 bits data in continuous mode.\nBy enabling this option, the driver will left shift 8 bits for the input data automatically.\nOnly disable this option when you decide to do this step by yourself.\nNote that the driver will allocate a new piece of memory to save the converted data.",
+                        "id": "DAC_DMA_AUTO_16BIT_ALIGN",
+                        "name": "DAC_DMA_AUTO_16BIT_ALIGN",
+                        "range": null,
+                        "title": "Align the continuous data to 16 bit automatically",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_DAC_SUPPORTED",
+                "id": "component-config-esp-driver-dac-configurations",
+                "title": "ESP-Driver:DAC Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
                         "depends_on": "IDF_TARGET_ESP32",
                         "help": "This option is intended to fix the bug that ESP32 is not able to switch to configured\npullup/pulldown mode in sleep.\nIf this option is selected, chip will automatically emulate the behaviour of switching,\nand about 450B of source codes would be placed into IRAM.",
                         "id": "GPIO_ESP32_SUPPORT_SWITCH_SLP_PULL",
@@ -6417,6 +6983,667 @@
                 "depends_on": null,
                 "id": "component-config-esp-driver-gpio-configurations",
                 "title": "ESP-Driver:GPIO Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "help": "Place GPTimer ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "GPTIMER_ISR_HANDLER_IN_IRAM",
+                        "name": "GPTIMER_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place GPTimer ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "help": "Place GPTimer control functions (like start/stop) in IRAM, to reduce latency caused by cache miss.\nIf enabled, these functions can also be called when cache is disabled.",
+                        "id": "GPTIMER_CTRL_FUNC_IN_IRAM",
+                        "name": "GPTIMER_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place GPTimer control functions in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "help": "Enable this option to allow the GPTimer Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the GPTimer functionality is still required to operate correctly.",
+                        "id": "GPTIMER_ISR_CACHE_SAFE",
+                        "name": "GPTIMER_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow GPTimer ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "help": "This will ensure the GPTimer object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "GPTIMER_OBJ_CACHE_SAFE",
+                        "name": "GPTIMER_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPTIMER_SUPPORTED",
+                        "help": "If enabled, GPTimer component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option by caution, as it will increase the binary size.",
+                        "id": "GPTIMER_ENABLE_DEBUG_LOG",
+                        "name": "GPTIMER_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_GPTIMER_SUPPORTED",
+                "id": "component-config-esp-driver-gptimer-configurations",
+                "title": "ESP-Driver:GPTimer Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2C_SUPPORTED",
+                        "help": "Ensure the I2C interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).\nnote: This cannot be used in the I2C legacy driver.",
+                        "id": "I2C_ISR_IRAM_SAFE",
+                        "name": "I2C_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "I2C ISR IRAM-Safe",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2C_SUPPORTED",
+                        "help": "whether to enable the debug log message for I2C driver.\nNote that this option only controls the I2C driver log, will not affect other drivers.\n\nnote: This cannot be used in the I2C legacy driver.",
+                        "id": "I2C_ENABLE_DEBUG_LOG",
+                        "name": "I2C_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable I2C debug log",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2C_SUPPORTED",
+                        "help": "I2C slave version 2 solves some existing known issues. Such as write/read workflow, stretch handling, etc.",
+                        "id": "I2C_ENABLE_SLAVE_DRIVER_VERSION_2",
+                        "name": "I2C_ENABLE_SLAVE_DRIVER_VERSION_2",
+                        "range": null,
+                        "title": "Enable I2C slave driver version 2",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2C_SUPPORTED",
+                        "help": "Place I2C master ISR handler into IRAM for better performance and fewer cache misses.",
+                        "id": "I2C_MASTER_ISR_HANDLER_IN_IRAM",
+                        "name": "I2C_MASTER_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place I2C master ISR handler into IRAM",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_I2C_SUPPORTED",
+                "id": "component-config-esp-driver-i2c-configurations",
+                "title": "ESP-Driver:I2C Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2S_SUPPORTED",
+                        "help": "Ensure the I2S interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "I2S_ISR_IRAM_SAFE",
+                        "name": "I2S_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "I2S ISR IRAM-Safe",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_I2S_SUPPORTED",
+                        "help": "whether to enable the debug log message for I2S driver.\nNote that, this option only controls the I2S driver log, will not affect other drivers.",
+                        "id": "I2S_ENABLE_DEBUG_LOG",
+                        "name": "I2S_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable I2S debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_I2S_SUPPORTED",
+                "id": "component-config-esp-driver-i2s-configurations",
+                "title": "ESP-Driver:I2S Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": "Place LEDC control functions (ledc_update_duty and ledc_stop) into IRAM,\nso that these functions can be IRAM-safe and able to be called in an IRAM context.\nEnabling this option can improve driver performance as well.",
+                        "id": "LEDC_CTRL_FUNC_IN_IRAM",
+                        "name": "LEDC_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place LEDC control functions into IRAM",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-esp-driver-ledc-configurations",
+                "title": "ESP-Driver:LEDC Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "help": "Place MCPWM ISR handler(s) in IRAM to reduce latency caused by cache miss.",
+                        "id": "MCPWM_ISR_HANDLER_IN_IRAM",
+                        "name": "MCPWM_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place MCPWM ISR handler into IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "help": "Enable this option to allow the MCPWM Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the MCPWM functionality is still required to operate correctly.",
+                        "id": "MCPWM_ISR_CACHE_SAFE",
+                        "name": "MCPWM_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow MCPWM ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "help": "Place MCPWM control functions in IRAM, to reduce latency caused by cache miss.\nIf enabled, these functions can also be called when cache is disabled.",
+                        "id": "MCPWM_CTRL_FUNC_IN_IRAM",
+                        "name": "MCPWM_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place MCPWM control functions in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "help": "This will ensure the MCPWM object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "MCPWM_OBJ_CACHE_SAFE",
+                        "name": "MCPWM_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_MCPWM_SUPPORTED",
+                        "help": "If enabled, MCPWM component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option with caution, as it will increase the binary size.",
+                        "id": "MCPWM_ENABLE_DEBUG_LOG",
+                        "name": "MCPWM_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_MCPWM_SUPPORTED",
+                "id": "component-config-esp-driver-mcpwm-configurations",
+                "title": "ESP-Driver:MCPWM Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "Place Parallel IO TX ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "PARLIO_TX_ISR_HANDLER_IN_IRAM",
+                        "name": "PARLIO_TX_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place Parallel IO TX ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "Place Parallel IO RX ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "PARLIO_RX_ISR_HANDLER_IN_IRAM",
+                        "name": "PARLIO_RX_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place Parallel IO RX ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "Enable this option to allow the Parallel IO TX Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the Parallel IO TX functionality is still required to operate correctly.",
+                        "id": "PARLIO_TX_ISR_CACHE_SAFE",
+                        "name": "PARLIO_TX_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow Parallel IO TX ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "Enable this option to allow the Parallel IO RX Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the Parallel IO RX functionality is still required to operate correctly.",
+                        "id": "PARLIO_RX_ISR_CACHE_SAFE",
+                        "name": "PARLIO_RX_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow Parallel IO RX ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "This will ensure the driver object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "PARLIO_OBJ_CACHE_SAFE",
+                        "name": "PARLIO_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "If enabled, Parallel IO driver component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option by caution, as it will increase the binary size.",
+                        "id": "PARLIO_ENABLE_DEBUG_LOG",
+                        "name": "PARLIO_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PARLIO_SUPPORTED",
+                        "help": "Ensure the Parallel IO interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "PARLIO_ISR_IRAM_SAFE",
+                        "name": "PARLIO_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "Parallel IO ISR IRAM-Safe (Deprecated)",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_PARLIO_SUPPORTED",
+                "id": "component-config-esp-driver-parallel-io-configurations",
+                "title": "ESP-Driver:Parallel IO Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PCNT_SUPPORTED",
+                        "help": "Place PCNT control functions (like start/stop) into IRAM,\nso that these functions can be IRAM-safe and able to be called in the other IRAM interrupt context.\nEnabling this option can improve driver performance as well.",
+                        "id": "PCNT_CTRL_FUNC_IN_IRAM",
+                        "name": "PCNT_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place PCNT control functions into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PCNT_SUPPORTED",
+                        "help": "Ensure the PCNT interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "PCNT_ISR_IRAM_SAFE",
+                        "name": "PCNT_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "PCNT ISR IRAM-Safe",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_PCNT_SUPPORTED",
+                        "help": "whether to enable the debug log message for PCNT driver.\nNote that, this option only controls the PCNT driver log, won't affect other drivers.",
+                        "id": "PCNT_ENABLE_DEBUG_LOG",
+                        "name": "PCNT_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_PCNT_SUPPORTED",
+                "id": "component-config-esp-driver-pcnt-configurations",
+                "title": "ESP-Driver:PCNT Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Place RMT encoder function into IRAM for better performance and fewer cache misses.",
+                        "id": "RMT_ENCODER_FUNC_IN_IRAM",
+                        "name": "RMT_ENCODER_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place RMT encoder function in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Place RMT TX ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "RMT_TX_ISR_HANDLER_IN_IRAM",
+                        "name": "RMT_TX_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place RMT TX ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Place RMT RX ISR handler in IRAM to reduce latency caused by cache miss.",
+                        "id": "RMT_RX_ISR_HANDLER_IN_IRAM",
+                        "name": "RMT_RX_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place RMT RX ISR handler in IRAM to reduce latency",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Place RMT receive function into IRAM for better performance and fewer cache misses.",
+                        "id": "RMT_RECV_FUNC_IN_IRAM",
+                        "name": "RMT_RECV_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place RMT receive function in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Enable this option to allow the RMT TX Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the RMT TX functionality is still required to operate correctly.",
+                        "id": "RMT_TX_ISR_CACHE_SAFE",
+                        "name": "RMT_TX_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow RMT TX ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Enable this option to allow the RMT RX Interrupt Service Routine (ISR)\nto execute even when the cache is disabled. This can be useful in scenarios where the cache\nmight be turned off, but the RMT RX functionality is still required to operate correctly.",
+                        "id": "RMT_RX_ISR_CACHE_SAFE",
+                        "name": "RMT_RX_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow RMT RX ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "This will ensure the RMT object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "RMT_OBJ_CACHE_SAFE",
+                        "name": "RMT_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "If enabled, RMT driver component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option by caution, as it will increase the binary size.",
+                        "id": "RMT_ENABLE_DEBUG_LOG",
+                        "name": "RMT_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_RMT_SUPPORTED",
+                        "help": "Ensure the RMT interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "RMT_ISR_IRAM_SAFE",
+                        "name": "RMT_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "RMT ISR IRAM-Safe (Deprecated)",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_RMT_SUPPORTED",
+                "id": "component-config-esp-driver-rmt-configurations",
+                "title": "ESP-Driver:RMT Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_SDM_SUPPORTED",
+                        "help": "Place SDM control functions (like set_duty) into IRAM,\nso that these functions can be IRAM-safe and able to be called in the other IRAM interrupt context.\nEnabling this option can improve driver performance as well.",
+                        "id": "SDM_CTRL_FUNC_IN_IRAM",
+                        "name": "SDM_CTRL_FUNC_IN_IRAM",
+                        "range": null,
+                        "title": "Place SDM control functions into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_SDM_SUPPORTED",
+                        "help": "whether to enable the debug log message for SDM driver.\nNote that, this option only controls the SDM driver log, won't affect other drivers.",
+                        "id": "SDM_ENABLE_DEBUG_LOG",
+                        "name": "SDM_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_SDM_SUPPORTED",
+                "id": "component-config-esp-driver-sigma-delta-modulator-configurations",
+                "title": "ESP-Driver:Sigma Delta Modulator Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "!FREERTOS_PLACE_FUNCTIONS_INTO_FLASH && SOC_GPSPI_SUPPORTED",
+                        "help": "Normally only the ISR of SPI master is placed in the IRAM, so that it\ncan work without the flash when interrupt is triggered.\nFor other functions, there's some possibility that the flash cache\nmiss when running inside and out of SPI functions, which may increase\nthe interval of SPI transactions.\nEnable this to put ``queue_trans``, ``get_trans_result`` and\n``transmit`` functions into the IRAM to avoid possible cache miss.\n\nThis configuration won't be available if `CONFIG_FREERTOS_PLACE_FUNCTIONS_INTO_FLASH` is enabled.\n\nDuring unit test, this is enabled to measure the ideal case of api.",
+                        "id": "SPI_MASTER_IN_IRAM",
+                        "name": "SPI_MASTER_IN_IRAM",
+                        "range": null,
+                        "title": "Place transmitting functions of SPI master into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "!HEAP_PLACE_FUNCTION_INTO_FLASH && SOC_GPSPI_SUPPORTED",
+                        "help": "Place the SPI master ISR in to IRAM to avoid possible cache miss.\n\nEnabling this configuration is possible only when HEAP_PLACE_FUNCTION_INTO_FLASH\nis disabled since the spi master uses can allocate transactions buffers into DMA\nmemory section using the heap component API that ipso facto has to be placed in IRAM.\n\nAlso you can forbid the ISR being disabled during flash writing\naccess, by add ESP_INTR_FLAG_IRAM when initializing the driver.",
+                        "id": "SPI_MASTER_ISR_IN_IRAM",
+                        "name": "SPI_MASTER_ISR_IN_IRAM",
+                        "range": null,
+                        "title": "Place SPI master ISR function into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPSPI_SUPPORTED",
+                        "help": "Normally only the ISR of SPI slave is placed in the IRAM, so that it\ncan work without the flash when interrupt is triggered.\nFor other functions, there's some possibility that the flash cache\nmiss when running inside and out of SPI functions, which may increase\nthe interval of SPI transactions.\nEnable this to put ``queue_trans``, ``get_trans_result`` and\n``transmit`` functions into the IRAM to avoid possible cache miss.",
+                        "id": "SPI_SLAVE_IN_IRAM",
+                        "name": "SPI_SLAVE_IN_IRAM",
+                        "range": null,
+                        "title": "Place transmitting functions of SPI slave into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_GPSPI_SUPPORTED",
+                        "help": "Place the SPI slave ISR in to IRAM to avoid possible cache miss.\n\nAlso you can forbid the ISR being disabled during flash writing\naccess, by add ESP_INTR_FLAG_IRAM when initializing the driver.",
+                        "id": "SPI_SLAVE_ISR_IN_IRAM",
+                        "name": "SPI_SLAVE_ISR_IN_IRAM",
+                        "range": null,
+                        "title": "Place SPI slave ISR function into IRAM",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_GPSPI_SUPPORTED",
+                "id": "component-config-esp-driver-spi-configurations",
+                "title": "ESP-Driver:SPI Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TEMP_SENSOR_SUPPORTED",
+                        "help": "whether to enable the debug log message for temperature sensor driver.\nNote that, this option only controls the temperature sensor driver log, won't affect other drivers.",
+                        "id": "TEMP_SENSOR_ENABLE_DEBUG_LOG",
+                        "name": "TEMP_SENSOR_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable debug log",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TEMPERATURE_SENSOR_INTR_SUPPORT && SOC_TEMP_SENSOR_SUPPORTED",
+                        "help": "Ensure the Temperature Sensor interrupt is IRAM-Safe by allowing the interrupt handler to be\nexecutable when the cache is disabled (e.g. SPI Flash write).",
+                        "id": "TEMP_SENSOR_ISR_IRAM_SAFE",
+                        "name": "TEMP_SENSOR_ISR_IRAM_SAFE",
+                        "range": null,
+                        "title": "Temperature sensor ISR IRAM-Safe",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_TEMP_SENSOR_SUPPORTED",
+                "id": "component-config-esp-driver-temperature-sensor-configurations",
+                "title": "ESP-Driver:Temperature Sensor Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TWAI_SUPPORTED",
+                        "help": "Place the TWAI ISR in to IRAM to reduce latency and increase performance",
+                        "id": "TWAI_ISR_IN_IRAM",
+                        "name": "TWAI_ISR_IN_IRAM",
+                        "range": null,
+                        "title": "Place TWAI ISR function in IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TWAI_SUPPORTED",
+                        "help": "Allow TWAI works under Cache disabled (such as when writing to SPI Flash),\nto enabled this config, all callbacks and user_ctx should also place in IRAM",
+                        "id": "TWAI_ISR_CACHE_SAFE",
+                        "name": "TWAI_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow TWAI ISR execute when cache disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TWAI_SUPPORTED",
+                        "help": "This will ensure the TWAI driver object will not be allocated from a memory region\nwhere its cache can be disabled.",
+                        "id": "TWAI_OBJ_CACHE_SAFE",
+                        "name": "TWAI_OBJ_CACHE_SAFE",
+                        "range": null,
+                        "title": null,
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "SOC_TWAI_SUPPORTED",
+                        "help": "If enabled, TWAI driver component will:\n1. ignore the global logging settings\n2. compile all log messages into the binary\n3. set the runtime log level to VERBOSE\nPlease enable this option by caution, as it will increase the binary size.",
+                        "id": "TWAI_ENABLE_DEBUG_LOG",
+                        "name": "TWAI_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Force enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_TWAI_SUPPORTED",
+                "id": "component-config-esp-driver-twai-configurations",
+                "title": "ESP-Driver:TWAI Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "!RINGBUF_PLACE_ISR_FUNCTIONS_INTO_FLASH",
+                        "help": "If this option is not selected, UART interrupt will be disabled for a long time and\nmay cause data lost when doing spi flash operation.",
+                        "id": "UART_ISR_IN_IRAM",
+                        "name": "UART_ISR_IN_IRAM",
+                        "range": null,
+                        "title": "Place UART ISR function into IRAM",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-esp-driver-uart-configurations",
+                "title": "ESP-Driver:UART Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": "If this option is not selected, UHCI interrupt will be disabled for a long time and\nmay cause data lost when doing spi flash operation.",
+                        "id": "UHCI_ISR_HANDLER_IN_IRAM",
+                        "name": "UHCI_ISR_HANDLER_IN_IRAM",
+                        "range": null,
+                        "title": "Place UHCI ISR function into IRAM",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": "Enable this option to allow the ISR for UHCI to execute even when the cache is disabled.\nThis can be useful in scenarios where the cache might be turned off, but the UHCI\nfunctionality is still required to operate correctly.",
+                        "id": "UHCI_ISR_CACHE_SAFE",
+                        "name": "UHCI_ISR_CACHE_SAFE",
+                        "range": null,
+                        "title": "Allow UHCI ISR to execute when cache is disabled",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": "whether to enable the debug log message for UHCI driver.\nNote that, this option only controls the UHCI driver log, won't affect other drivers.",
+                        "id": "UHCI_ENABLE_DEBUG_LOG",
+                        "name": "UHCI_ENABLE_DEBUG_LOG",
+                        "range": null,
+                        "title": "Enable debug log",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-esp-driver-uhci-configurations",
+                "title": "ESP-Driver:UHCI Configurations",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "PM_ENABLE && ESP_CONSOLE_USB_SERIAL_JTAG_ENABLED && !SOC_USB_SERIAL_JTAG_SUPPORT_LIGHT_SLEEP && USJ_ENABLE_USB_SERIAL_JTAG && SOC_USB_SERIAL_JTAG_SUPPORTED",
+                                "help": "If enabled, the chip will constantly monitor the connection status of the USB Serial/JTAG port. As long\nas the USB Serial/JTAG is connected, a ESP_PM_NO_LIGHT_SLEEP power management lock will be acquired to\nprevent the system from entering light sleep.\nThis option can be useful if serial monitoring is needed via USB Serial/JTAG while power management is\nenabled, as the USB Serial/JTAG cannot work under light sleep and after waking up from light sleep.\nNote. This option can only control the automatic Light-Sleep behavior. If esp_light_sleep_start() is\ncalled manually from the program, enabling this option will not prevent light sleep entry even if the\nUSB Serial/JTAG is in use.",
+                                "id": "USJ_NO_AUTO_LS_ON_CONNECTION",
+                                "name": "USJ_NO_AUTO_LS_ON_CONNECTION",
+                                "range": null,
+                                "title": "Don't enter the automatic light sleep when USB Serial/JTAG port is connected",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": "SOC_USB_SERIAL_JTAG_SUPPORTED",
+                        "help": "The USB-Serial-JTAG module on ESP chips is turned on by default after power-on.\nIf your application does not need it and not rely on it to be used as system\nconsole or use the built-in JTAG for debugging, you can disable this option,\nthen the clock of this module will be disabled at startup, which will save\nsome power consumption.",
+                        "id": "USJ_ENABLE_USB_SERIAL_JTAG",
+                        "name": "USJ_ENABLE_USB_SERIAL_JTAG",
+                        "range": null,
+                        "title": "Enable USB-Serial-JTAG Module",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": "SOC_USB_SERIAL_JTAG_SUPPORTED",
+                "id": "component-config-esp-driver-usb-serial-jtag-configuration",
+                "title": "ESP-Driver:USB Serial/JTAG Configuration",
                 "type": "menu"
             },
             {
@@ -7565,6 +8792,35 @@
                 "depends_on": null,
                 "id": "component-config-power-management",
                 "title": "Power Management",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "RINGBUF_PLACE_FUNCTIONS_INTO_FLASH",
+                                "help": "Place ISR ringbuf functions (like xRingbufferSendFromISR/xRingbufferReceiveFromISR) into flash.\nThis frees up IRAM, but the functions can no longer be called when the cache is disabled\nor from an IRAM interrupt context.\n\nThis option is not compatible with ESP-IDF drivers which are configured to\nrun the ISR from an IRAM context, e.g. CONFIG_UART_ISR_IN_IRAM.",
+                                "id": "RINGBUF_PLACE_ISR_FUNCTIONS_INTO_FLASH",
+                                "name": "RINGBUF_PLACE_ISR_FUNCTIONS_INTO_FLASH",
+                                "range": null,
+                                "title": "Place ISR ringbuf functions into flash",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": "Place non-ISR ringbuf functions (like xRingbufferCreate/xRingbufferSend) into flash.\nThis frees up IRAM, but the functions can no longer be called when the cache is disabled.",
+                        "id": "RINGBUF_PLACE_FUNCTIONS_INTO_FLASH",
+                        "name": "RINGBUF_PLACE_FUNCTIONS_INTO_FLASH",
+                        "range": null,
+                        "title": "Place non-ISR ringbuf functions into flash",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "component-config-esp-ringbuf",
+                "title": "ESP Ringbuf",
                 "type": "menu"
             },
             {
