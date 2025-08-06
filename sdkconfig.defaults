@@ -1,0 +1,7 @@
+# Custom configuration overrides for Little Dawn
+
+# Increase pthread stack size to prevent VT client crashes
+CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=8192
+
+# Disable threads for AgIsoStack (already set in CMakeLists.txt but good to have here)
+CONFIG_CAN_STACK_DISABLE_THREADS=1

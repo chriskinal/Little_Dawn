@@ -1,0 +1,50 @@
+# Build artifacts
+build/
+*.bin
+*.elf
+*.map
+*.a
+*.o
+
+# ESP-IDF
+sdkconfig
+sdkconfig.old
+
+# IDE
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+log/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Documentation builds
+docs/_build/
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# Backup files
+*.bak
+*.backup
+
+# PoolEdit temporary files
+PoolEdit/*.tmp
+PoolEdit/*.bak
