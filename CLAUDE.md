@@ -4,14 +4,14 @@
 Little Dawn is an ESP32-based ISOBUS bridge that communicates with agricultural equipment using the ISO 11783 (ISOBUS) protocol. It acts as a bridge between "New Dawn" (another device) and ISOBUS Virtual Terminals (VT).
 
 ## Hardware Configuration
-- **MCU**: ESP32C3 (XIAO ESP32C3)
+- **MCU**: ESP32C3 (XIAO ESP32C3 in AiO board socket)
 - **CAN Transceiver**: SN65HVD230
 - **Pin Connections**:
   - TWAI_TX: GPIO4 (D2 on XIAO)
   - TWAI_RX: GPIO5 (D3 on XIAO)
   - LED: GPIO8 (D8 - AiO board LED)
-  - Serial to New Dawn: GPIO21/20 (D6/D7) - planned
-  - Available: GPIO6 (D4), GPIO9/10 (D9/D10)
+  - Serial to New Dawn: GPIO21/20 (D6/D7) - UART1 at 460800 baud
+  - Available: GPIO2/3 (D0/D1), GPIO6/7 (D4/D5), GPIO9/10 (D9/D10)
 
 ## Software Stack
 - **Framework**: ESP-IDF v5.5
@@ -21,17 +21,20 @@ Little Dawn is an ESP32-based ISOBUS bridge that communicates with agricultural 
 
 ## Key Components
 1. **main.cpp**: Main application with ISOBUS initialization and CAN communication
-2. **vt_client.cpp/h**: Virtual Terminal client implementation with object pool
+2. **new_dawn_serial.cpp/h**: Serial communication with New Dawn (machine status data)
 3. **esp32_logger.h**: Custom logger for AgIsoStack integration
-4. **vt_object_ids.h**: Defines all VT object IDs used in the display
+4. **LD7.iop**: Object pool created with AgIsoStack web editor (displays WAS angle and speed)
+5. **vt_object_ids.h**: Defines all VT object IDs used in the display
 
 ## Current Status
 - ✅ CAN communication working (TX/RX verified)
 - ✅ Address claiming successful at 0x80
 - ✅ VT client initialization and state machine updates
-- ✅ Object pool upload to VT (166 bytes)
-- ❌ VT object pool parsing failing with "Unsupported Object"
-- 🔧 Plan: Rebuild from scratch with incremental approach
+- ✅ Object pool upload to VT - using LD7 pool
+- ✅ VT display working with WAS angle and speed fields
+- ✅ Serial communication with New Dawn at 460800 baud
+- ✅ Real-time data display with minimal lag (~50-100ms)
+- ✅ Button and soft key functionality working
 
 ## Common Issues and Solutions
 1. **No CAN transmission**: Ensure manual `isobus::CANHardwareInterface::update()` calls since threads are disabled
@@ -57,16 +60,16 @@ idf.py -p /dev/cu.usbmodem* flash monitor
 - Monitor VT logs for object pool parsing errors
 - Use CAN sniffer to verify message transmission
 
-## Next Steps (Tomorrow's Plan)
-1. Start fresh with minimal ESP32 + TWAI setup
-2. Create simplest possible VT object pool (just "Hello VT" text)
-3. Verify basic VT connection and display
-4. Incrementally add one object at a time:
-   - First: Add a variable
-   - Second: Add soft keys
-   - Third: Add more complex display elements
-5. Once stable, add serial communication with New Dawn
-6. Display real New Dawn data on the VT
+## Serial Communication Protocol
+- **Baud Rate**: 460800
+- **Format**: Binary messages with structure `[ID][LENGTH][DATA...][CHECKSUM]`
+- **Machine Status Message (ID 0x01)**:
+  - speed: int16_t in 0.01 km/h units
+  - heading: int16_t in 0.1 degree units  
+  - roll: int16_t in 0.1 degree units
+  - pitch: int16_t in 0.1 degree units
+  - steerAngle: int16_t in 0.1 degree units (WAS)
+- **Checksum**: One's complement of all bytes
 
 ## Important Notes
 - VT parser is extremely strict about object pool format

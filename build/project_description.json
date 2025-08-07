@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "Little_Dawn",
-    "project_version":    "78c63af-dirty",
+    "project_version":    "d7fd9f0-dirty",
     "project_path":       "/Users/chris/Documents/Code/Little_Dawn",
     "idf_path":           "/Users/chris/esp/v5.5/esp-idf",
     "build_dir":          "/Users/chris/Documents/Code/Little_Dawn/build",
@@ -715,7 +715,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "/Users/chris/Documents/Code/Little_Dawn/build/esp-idf/main/libmain.a",
-            "sources": [ "/Users/chris/Documents/Code/Little_Dawn/main/main.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/simple_object_pool.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/little_dawn_object_pool.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/minimal_object_pool.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/working_object_pool.cpp", "/Users/chris/Documents/Code/Little_Dawn/build/object_pool.iop.S" ],
+            "sources": [ "/Users/chris/Documents/Code/Little_Dawn/main/main.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/new_dawn_serial.cpp", "/Users/chris/Documents/Code/Little_Dawn/main/manual_pool.cpp", "/Users/chris/Documents/Code/Little_Dawn/build/LD7.iop.S" ],
             "include_dirs": []
         },
         "mbedtls": {

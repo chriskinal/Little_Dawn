@@ -22,11 +22,9 @@
 #include "isobus/isobus/isobus_virtual_terminal_client.hpp"
 
 #include "esp32_logger.h"
-#include "simple_object_pool.h"
-#include "little_dawn_object_pool.h"
-#include "minimal_object_pool.h"
-#include "working_object_pool.h"
 #include "vt_object_ids.h"
+#include "manual_pool.h"
+#include "new_dawn_serial.h"
 
 static const char *TAG = "LITTLE_DAWN";
 
@@ -47,9 +45,11 @@ static std::shared_ptr<isobus::VirtualTerminalClient> vtClient = nullptr;
 // Variables for VT display updates
 static uint32_t displayValue = 0;
 static bool vtConnected = false;
-// External symbols for embedded object pool binary
-extern "C" const uint8_t object_pool_start[] asm("_binary_object_pool_iop_start");
-extern "C" const uint8_t object_pool_end[] asm("_binary_object_pool_iop_end");
+
+// External symbols for LD7 pool
+extern "C" const uint8_t ld7_start[] asm("_binary_LD7_iop_start");
+extern "C" const uint8_t ld7_end[] asm("_binary_LD7_iop_end");
+
 
 
 void setup_led(void)
@@ -78,7 +78,8 @@ void blink_led(int times, int duration_ms)
 void can_update_task(void *arg)
 {
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = pdMS_TO_TICKS(10); // 10ms update rate
+    const TickType_t xFrequency = pdMS_TO_TICKS(10); // Back to 10ms - 5ms causes kernel panic
+    static uint32_t lastVTUpdateTime = 0;
     
     while (1) {
         // Update the CAN hardware interface (required when threads are disabled)
@@ -87,8 +88,32 @@ void can_update_task(void *arg)
         // Update VT client if it exists
         if (vtClient) {
             vtClient->update();
+            
+            // Update VT display values every 50ms for responsive updates
+            uint32_t currentTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            if (vtClient->get_is_connected() && (currentTime - lastVTUpdateTime >= 50)) {
+                lastVTUpdateTime = currentTime;
+                
+                // Update both number variables with New Dawn data
+                new_dawn_data_t dawn_data;
+                if (new_dawn_get_data(&dawn_data)) {
+                    // Display WAS angle in whole degrees (convert from 0.1 deg)
+                    uint32_t wasAngle = abs(dawn_data.status.steerAngle / 10);
+                    // Display speed in km/h (convert from 0.01 km/h)
+                    uint32_t speed = dawn_data.status.speed / 100;
+                    
+                    // Update VT fields directly
+                    vtClient->send_change_numeric_value(21000, wasAngle + 214748364);
+                    vtClient->send_change_numeric_value(21001, speed + 214748364);
+                }
+            }
+            
+            // Extra yield after VT update to prevent kernel panic
+            taskYIELD();
         }
         
+        // Yield to other tasks to prevent watchdog/kernel panic
+        taskYIELD();
         
         // Use vTaskDelayUntil for more consistent timing
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -165,10 +190,10 @@ extern "C" void app_main(void)
     // Create VT client
     vtClient = std::make_shared<isobus::VirtualTerminalClient>(partnerVT, internalECU);
     
-    // Use embedded example object pool - the only one that works reliably
-    size_t poolSize = object_pool_end - object_pool_start;
-    ESP_LOGI(TAG, "Using embedded example object pool: %d bytes", poolSize);
-    vtClient->set_object_pool(0, object_pool_start, poolSize, "ais1");
+    // Set up the LD7 object pool
+    size_t poolSize = ld7_end - ld7_start;
+    ESP_LOGI(TAG, "Using LD7 object pool (AgIsoStack web editor): %d bytes", poolSize);
+    vtClient->set_object_pool(0, ld7_start, poolSize, "ld7");
     
     // Initialize VT client with data storage callbacks enabled
     vtClient->initialize(true);
@@ -236,9 +261,13 @@ extern "C" void app_main(void)
     #endif
     
     // Create task for updating CAN hardware (since threads are disabled)
-    // Lower priority (1) to ensure idle task can run
+    // Priority 2 for timely CAN updates (idle=0, main loop=1)
     // Increased stack size to 16KB for VT message processing
-    xTaskCreate(can_update_task, "CAN_update", 16384, NULL, 1, NULL);
+    xTaskCreate(can_update_task, "CAN_update", 16384, NULL, 2, NULL);
+    
+    // Initialize and start New Dawn serial communication
+    new_dawn_serial_init();
+    xTaskCreate(new_dawn_serial_task, "NewDawn_serial", 4096, NULL, 1, NULL);
     
     // Main loop
     uint32_t lastStatusTime = 0;
@@ -287,27 +316,37 @@ extern "C" void app_main(void)
                         blink_led(5, 100); // Celebrate with 5 fast blinks
                         vtConnected = true;
                         
-                        // Try to activate the main data mask (working set ID 0, mask ID depends on pool)
-                        // For the example pool, try common mask IDs
-                        if (vtClient->send_change_active_mask(0, 1000)) {
-                            ESP_LOGI(TAG, "Sent change active mask command for mask 1000");
+                        // Send change active mask to Working Set ID 1
+                        if (vtClient->send_change_active_mask(1, 0xFFFF)) {
+                            ESP_LOGI(TAG, "Sent change active mask command");
                         }
                     }
                     
                     // Update the display value periodically
                     static uint32_t lastUpdateTime = 0;
-                    if (currentTime - lastUpdateTime >= 1000) { // Update every second
+                    if (currentTime - lastUpdateTime >= 100) { // Update every 100ms to match New Dawn
                         lastUpdateTime = currentTime;
-                        displayValue++;
                         
-                        // Update the VT number variable (ButtonExampleNumber_VarNum = 21000)
-                        // The example pool has an offset of -214748364, so we add that to our value
-                        uint32_t vtValue = displayValue + 214748364;
-                        if (vtClient->send_change_numeric_value(21000, vtValue)) {
-                            ESP_LOGI(TAG, "Updated VT display value to %lu", displayValue);
+                        // Try to get real data from New Dawn
+                        new_dawn_data_t dawn_data;
+                        if (new_dawn_get_data(&dawn_data)) {
+                            // Use WAS angle as primary display value (convert from 0.1 deg to whole degrees)
+                            displayValue = abs(dawn_data.status.steerAngle / 10);
+                            // Only log every second to avoid spam
+                            static uint32_t lastLogTime = 0;
+                            if (currentTime - lastLogTime >= 1000) {
+                                ESP_LOGI(TAG, "Using New Dawn data - Speed: %.2f km/h, WAS: %.1f deg", 
+                                         dawn_data.status.speed / 100.0f,
+                                         dawn_data.status.steerAngle / 10.0f);
+                                lastLogTime = currentTime;
+                            }
                         } else {
-                            ESP_LOGW(TAG, "Failed to update VT display value");
+                            // Fall back to test counter
+                            displayValue++;
+                            ESP_LOGD(TAG, "No New Dawn data, using test counter: %lu", displayValue);
                         }
+                        
+                        // VT updates for LD7 pool are now handled in can_update_task for better responsiveness
                     }
                 }
             }

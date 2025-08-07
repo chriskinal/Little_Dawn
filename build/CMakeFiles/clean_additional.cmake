@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 
 if("${CONFIG}" STREQUAL "" OR "${CONFIG}" STREQUAL "")
   file(REMOVE_RECURSE
+  "LD7.iop.S"
   "Little_Dawn.bin"
   "Little_Dawn.map"
   "bootloader/bootloader.bin"
@@ -18,7 +19,6 @@ if("${CONFIG}" STREQUAL "" OR "${CONFIG}" STREQUAL "")
   "flasher_args.json"
   "ldgen_libraries"
   "ldgen_libraries.in"
-  "object_pool.iop.S"
   "project_elf_src_esp32c3.c"
   "x509_crt_bundle.S"
   )
