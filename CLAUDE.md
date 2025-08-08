@@ -76,3 +76,9 @@ idf.py -p /dev/cu.usbmodem* flash monitor
 - Build incrementally from known-working examples
 - Test thoroughly after each addition
 - See VT_DEBUG_SUMMARY.md for detailed learnings
+- Build commmands\
+For an incremental build when you've only changed the IOP file reference, you could have just run:
+  source /Users/chris/esp/v5.5/esp-idf/export.sh && idf.py build\
+\
+Or if you want to ensure CMake picks up the changes to CMakeLists.txt:
+  source /Users/chris/esp/v5.5/esp-idf/export.sh && idf.py reconfigure && idf.py build\

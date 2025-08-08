@@ -46,9 +46,9 @@ static std::shared_ptr<isobus::VirtualTerminalClient> vtClient = nullptr;
 static uint32_t displayValue = 0;
 static bool vtConnected = false;
 
-// External symbols for LD13 pool
-extern "C" const uint8_t ld13_start[] asm("_binary_LD13_iop_start");
-extern "C" const uint8_t ld13_end[] asm("_binary_LD13_iop_end");
+// External symbols for LD15 pool
+extern "C" const uint8_t ld15_start[] asm("_binary_LD15_iop_start");
+extern "C" const uint8_t ld15_end[] asm("_binary_LD15_iop_end");
 
 
 
@@ -190,10 +190,10 @@ extern "C" void app_main(void)
     // Create VT client
     vtClient = std::make_shared<isobus::VirtualTerminalClient>(partnerVT, internalECU);
     
-    // Set up the LD13 object pool
-    size_t poolSize = ld13_end - ld13_start;
-    ESP_LOGI(TAG, "Using LD13 object pool (AgIsoStack web editor): %d bytes", poolSize);
-    vtClient->set_object_pool(0, ld13_start, poolSize, "ld13");
+    // Set up the LD15 object pool
+    size_t poolSize = ld15_end - ld15_start;
+    ESP_LOGI(TAG, "Using LD15 object pool (AgIsoStack web editor): %d bytes", poolSize);
+    vtClient->set_object_pool(0, ld15_start, poolSize, "ld15");
     
     // Initialize VT client with data storage callbacks enabled
     vtClient->initialize(true);
