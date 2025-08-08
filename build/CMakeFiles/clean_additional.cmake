@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 
 if("${CONFIG}" STREQUAL "" OR "${CONFIG}" STREQUAL "")
   file(REMOVE_RECURSE
-  "LD7.iop.S"
+  "LD12.iop.S"
   "Little_Dawn.bin"
   "Little_Dawn.map"
   "bootloader/bootloader.bin"

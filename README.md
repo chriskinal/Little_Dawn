@@ -1,53 +1,94 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-C61 | ESP32-H2 | ESP32-H21 | ESP32-H4 | ESP32-P4 | ESP32-S2 | ESP32-S3 | Linux |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | --------- | -------- | --------- | -------- | -------- | -------- | -------- | ----- |
+| Supported Targets | ESP32-C3 |
+| ----------------- | -------- |
 
-# Hello World Example
+# Little Dawn - ESP32 ISOBUS Bridge
 
-Starts a FreeRTOS task to print "Hello World".
+Little Dawn is an ESP32-based ISOBUS bridge that enables communication between agricultural equipment using the ISO 11783 (ISOBUS) protocol. It acts as a bridge between "New Dawn" (a proprietary agricultural device) and ISOBUS Virtual Terminals (VT), providing real-time display of machine data on standard agricultural displays.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Features
 
-## How to use example
+- **Real-time Data Display**: Shows wheel angle sensor (WAS) data and vehicle speed on ISOBUS VT displays
+- **High-Speed Serial Communication**: 460800 baud serial link to New Dawn device
+- **CAN Bus Communication**: Full ISO 11783 compliance at 250kbps
+- **Low Latency**: Minimal lag (~50-100ms) between data updates
+- **Button Support**: Soft key functionality for user interaction
 
-Follow detailed instructions provided specifically for this example.
+## Hardware Requirements
 
-Select the instructions depending on Espressif chip installed on your development board:
+- **MCU**: ESP32-C3 (XIAO ESP32C3 in AiO board socket)
+- **CAN Transceiver**: SN65HVD230
+- **Pin Configuration**:
+  - TWAI TX: GPIO4 (D2)
+  - TWAI RX: GPIO5 (D3)
+  - Status LED: GPIO8 (D8)
+  - Serial to New Dawn: GPIO21/20 (D6/D7)
 
-- [ESP32 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/stable/get-started/index.html)
-- [ESP32-S2 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
+## Software Architecture
 
+The project uses:
+- **ESP-IDF v5.5**: Espressif's official development framework
+- **AgIsoStack++**: Open-source ISOBUS protocol stack
+- **Custom Components**:
+  - VT object pool display (LD12.iop)
+  - Serial protocol handler for New Dawn communication
+  - ESP32-specific logger integration
 
-## Example folder contents
+## Building and Flashing
 
-The project **hello_world** contains one source file in C language [hello_world_main.c](main/hello_world_main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt` files that provide set of directives and instructions describing the project's source files and targets (executable, library, or both).
-
-Below is short explanation of remaining files in the project folder.
-
+1. Set up ESP-IDF environment:
+```bash
+source /path/to/esp-idf/export.sh
 ```
-├── CMakeLists.txt
-├── pytest_hello_world.py      Python script used for automated testing
-├── main
-│   ├── CMakeLists.txt
-│   └── hello_world_main.c
-└── README.md                  This is the file you are currently reading
+
+2. Build the project:
+```bash
+idf.py build
 ```
 
-For more information on structure and contents of ESP-IDF projects, please refer to Section [Build System](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html) of the ESP-IDF Programming Guide.
+3. Flash and monitor:
+```bash
+idf.py -p /dev/cu.usbmodem* flash monitor
+```
+
+## Serial Protocol
+
+Communication with New Dawn uses a binary protocol:
+- **Format**: `[ID][LENGTH][DATA...][CHECKSUM]`
+- **Machine Status Message (0x01)** contains:
+  - Speed (0.01 km/h units)
+  - Heading (0.1 degree units)
+  - Roll/Pitch (0.1 degree units)
+  - Steering angle (0.1 degree units)
+
+## Project Status
+
+The project is fully functional with:
+- ✅ Bidirectional CAN communication
+- ✅ ISOBUS address claiming
+- ✅ VT object pool display
+- ✅ Real-time data updates
+- ✅ Serial communication with New Dawn
+
+## Configuration
+
+Key settings in `sdkconfig`:
+- ISOBUS threading disabled for manual update control
+- TWAI (CAN) configured for 250kbps
+- Custom partition table for larger application size
 
 ## Troubleshooting
 
-* Program upload failure
+- **No CAN communication**: Check TWAI pin connections and transceiver power
+- **VT not displaying**: Verify object pool format and VT compatibility
+- **Serial data issues**: Confirm baud rate (460800) and checksum calculation
 
-    * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
-    * The baud rate for downloading is too high: lower your baud rate in the `menuconfig` menu, and try again.
+## Technical Support
 
-## Technical support and feedback
+For issues or questions:
+- Review the [CLAUDE.md](CLAUDE.md) file for detailed technical notes
+- Check debug logs with monitor command
+- Use a CAN analyzer to verify message transmission
 
-Please use the following feedback channels:
+## License
 
-* For technical queries, go to the [esp32.com](https://esp32.com/) forum
-* For a feature request or bug report, create a [GitHub issue](https://github.com/espressif/esp-idf/issues)
-
-We will get back to you as soon as possible.
+This project uses open-source components including AgIsoStack++ under their respective licenses.

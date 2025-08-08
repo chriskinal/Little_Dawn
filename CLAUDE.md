@@ -23,14 +23,14 @@ Little Dawn is an ESP32-based ISOBUS bridge that communicates with agricultural 
 1. **main.cpp**: Main application with ISOBUS initialization and CAN communication
 2. **new_dawn_serial.cpp/h**: Serial communication with New Dawn (machine status data)
 3. **esp32_logger.h**: Custom logger for AgIsoStack integration
-4. **LD7.iop**: Object pool created with AgIsoStack web editor (displays WAS angle and speed)
+4. **LD12.iop**: Object pool created with AgIsoStack web editor (displays WAS angle and speed)
 5. **vt_object_ids.h**: Defines all VT object IDs used in the display
 
 ## Current Status
 - ✅ CAN communication working (TX/RX verified)
 - ✅ Address claiming successful at 0x80
 - ✅ VT client initialization and state machine updates
-- ✅ Object pool upload to VT - using LD7 pool
+- ✅ Object pool upload to VT - using LD12 pool
 - ✅ VT display working with WAS angle and speed fields
 - ✅ Serial communication with New Dawn at 460800 baud
 - ✅ Real-time data display with minimal lag (~50-100ms)

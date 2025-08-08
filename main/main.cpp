@@ -46,9 +46,9 @@ static std::shared_ptr<isobus::VirtualTerminalClient> vtClient = nullptr;
 static uint32_t displayValue = 0;
 static bool vtConnected = false;
 
-// External symbols for LD7 pool
-extern "C" const uint8_t ld7_start[] asm("_binary_LD7_iop_start");
-extern "C" const uint8_t ld7_end[] asm("_binary_LD7_iop_end");
+// External symbols for LD12 pool
+extern "C" const uint8_t ld12_start[] asm("_binary_LD12_iop_start");
+extern "C" const uint8_t ld12_end[] asm("_binary_LD12_iop_end");
 
 
 
@@ -190,10 +190,10 @@ extern "C" void app_main(void)
     // Create VT client
     vtClient = std::make_shared<isobus::VirtualTerminalClient>(partnerVT, internalECU);
     
-    // Set up the LD7 object pool
-    size_t poolSize = ld7_end - ld7_start;
-    ESP_LOGI(TAG, "Using LD7 object pool (AgIsoStack web editor): %d bytes", poolSize);
-    vtClient->set_object_pool(0, ld7_start, poolSize, "ld7");
+    // Set up the LD12 object pool
+    size_t poolSize = ld12_end - ld12_start;
+    ESP_LOGI(TAG, "Using LD12 object pool (AgIsoStack web editor): %d bytes", poolSize);
+    vtClient->set_object_pool(0, ld12_start, poolSize, "ld12");
     
     // Initialize VT client with data storage callbacks enabled
     vtClient->initialize(true);
@@ -290,11 +290,12 @@ extern "C" void app_main(void)
             // Get TWAI status
             twai_status_info_t status;
             twai_get_status_info(&status);
-            ESP_LOGI(TAG, "TWAI state: %d, TX errors: %ld, RX errors: %ld, Bus: %s", 
+            ESP_LOGI(TAG, "TWAI state: %d, TX errors: %ld, RX errors: %ld, Bus errors: %ld, Arb lost: %ld", 
                      status.state, 
                      status.tx_error_counter, 
                      status.rx_error_counter,
-                     status.bus_error_count > 0 ? "ERROR" : "OK");
+                     status.bus_error_count,
+                     status.arb_lost_count);
             
             // Report VT client status
             if (vtClient) {

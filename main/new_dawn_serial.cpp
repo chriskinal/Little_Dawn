@@ -148,9 +148,7 @@ void new_dawn_serial_task(void *arg)
                         memcpy(&current_data, &temp_data, sizeof(new_dawn_data_t));
                         xSemaphoreGive(data_mutex);
                         
-                        ESP_LOGI(TAG, "Updated - Speed: %.2f km/h, WAS: %.1f deg", 
-                                 temp_data.status.speed / 100.0f, 
-                                 temp_data.status.steerAngle / 10.0f);
+                        // Data updated successfully - no need to log
                     }
                 }
                 
@@ -172,20 +170,7 @@ void new_dawn_serial_task(void *arg)
             }
         }
         
-        // Report status every 5 seconds
-        static uint32_t last_status = 0;
-        uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
-        if (now - last_status > 5000) {
-            if (current_data.data_valid) {
-                uint32_t age = now - current_data.timestamp;
-                ESP_LOGI(TAG, "Receiving data - Age: %lu ms, Speed: %.2f km/h, WAS: %.1f deg", 
-                         age, current_data.status.speed / 100.0f, 
-                         current_data.status.steerAngle / 10.0f);
-            } else {
-                ESP_LOGI(TAG, "No data received from New Dawn yet");
-            }
-            last_status = now;
-        }
+        // Status reporting removed - serial communication is working
         
         vTaskDelay(pdMS_TO_TICKS(10));
     }

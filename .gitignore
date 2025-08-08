@@ -48,3 +48,6 @@ venv/
 # PoolEdit temporary files
 PoolEdit/*.tmp
 PoolEdit/*.bak
+
+# Claude config
+CLAUDE.md
