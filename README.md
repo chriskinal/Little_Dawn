@@ -35,6 +35,8 @@ The project uses:
 
 ## Building and Flashing
 
+### Option 1: Using ESP-IDF (for development)
+
 1. Set up ESP-IDF environment:
 ```bash
 source /path/to/esp-idf/export.sh
@@ -49,6 +51,23 @@ idf.py build
 ```bash
 idf.py -p /dev/cu.usbmodem* flash monitor
 ```
+
+### Option 2: Using pre-built binaries (no ESP-IDF required)
+
+If you have pre-built binaries from the `build` directory, you can flash them directly using `esptool.py`:
+
+```bash
+esptool.py -p /dev/cu.usbmodem* -b 460800 --chip esp32c3 write_flash \
+  --flash_mode dio --flash_freq 80m --flash_size 2MB \
+  0x0 bootloader/bootloader.bin \
+  0x8000 partition_table/partition-table.bin \
+  0x10000 Little_Dawn.bin
+```
+
+Required files (found in the `build` directory after compilation):
+- `bootloader/bootloader.bin` - Bootloader (flashed at 0x0)
+- `partition_table/partition-table.bin` - Partition table (flashed at 0x8000)
+- `Little_Dawn.bin` - Main application (flashed at 0x10000)
 
 ## Serial Protocol
 
