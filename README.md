@@ -29,7 +29,7 @@ The project uses:
 - **ESP-IDF v5.5**: Espressif's official development framework
 - **AgIsoStack++**: Open-source ISOBUS protocol stack
 - **Custom Components**:
-  - VT object pool display (LD12.iop)
+  - VT object pool display (LD13.iop)
   - Serial protocol handler for New Dawn communication
   - ESP32-specific logger integration
 

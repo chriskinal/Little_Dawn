@@ -46,9 +46,9 @@ static std::shared_ptr<isobus::VirtualTerminalClient> vtClient = nullptr;
 static uint32_t displayValue = 0;
 static bool vtConnected = false;
 
-// External symbols for LD12 pool
-extern "C" const uint8_t ld12_start[] asm("_binary_LD12_iop_start");
-extern "C" const uint8_t ld12_end[] asm("_binary_LD12_iop_end");
+// External symbols for LD13 pool
+extern "C" const uint8_t ld13_start[] asm("_binary_LD13_iop_start");
+extern "C" const uint8_t ld13_end[] asm("_binary_LD13_iop_end");
 
 
 
@@ -190,10 +190,10 @@ extern "C" void app_main(void)
     // Create VT client
     vtClient = std::make_shared<isobus::VirtualTerminalClient>(partnerVT, internalECU);
     
-    // Set up the LD12 object pool
-    size_t poolSize = ld12_end - ld12_start;
-    ESP_LOGI(TAG, "Using LD12 object pool (AgIsoStack web editor): %d bytes", poolSize);
-    vtClient->set_object_pool(0, ld12_start, poolSize, "ld12");
+    // Set up the LD13 object pool
+    size_t poolSize = ld13_end - ld13_start;
+    ESP_LOGI(TAG, "Using LD13 object pool (AgIsoStack web editor): %d bytes", poolSize);
+    vtClient->set_object_pool(0, ld13_start, poolSize, "ld13");
     
     // Initialize VT client with data storage callbacks enabled
     vtClient->initialize(true);
@@ -317,9 +317,9 @@ extern "C" void app_main(void)
                         blink_led(5, 100); // Celebrate with 5 fast blinks
                         vtConnected = true;
                         
-                        // Send change active mask to Working Set ID 1
-                        if (vtClient->send_change_active_mask(1, 0xFFFF)) {
-                            ESP_LOGI(TAG, "Sent change active mask command");
+                        // Send change active mask: Working Set 0 to Data Mask 1000
+                        if (vtClient->send_change_active_mask(0, 1000)) {
+                            ESP_LOGI(TAG, "Sent change active mask command: WS 0 to Data Mask 1000");
                         }
                     }
                     
