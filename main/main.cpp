@@ -97,8 +97,8 @@ void can_update_task(void *arg)
                 // Update both number variables with New Dawn data
                 new_dawn_data_t dawn_data;
                 if (new_dawn_get_data(&dawn_data)) {
-                    // Display WAS angle in whole degrees (convert from 0.1 deg)
-                    uint32_t wasAngle = abs(dawn_data.status.steerAngle / 10);
+                    // Display WAS angle in 0.1 degree units (matching IOP scale 0.1)
+                    uint32_t wasAngle = abs(dawn_data.status.steerAngle);
                     // Display speed in km/h (convert from 0.01 km/h)
                     uint32_t speed = dawn_data.status.speed / 100;
                     
