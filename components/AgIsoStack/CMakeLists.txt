@@ -45,7 +45,7 @@ idf_component_register(
 )
 
 # Disable threading for ESP32
-target_compile_definitions(${COMPONENT_LIB} PUBLIC CONFIG_CAN_STACK_DISABLE_THREADS=1)
+target_compile_definitions(${COMPONENT_LIB} PUBLIC CAN_STACK_DISABLE_THREADS=1)
 
 # Enable C++17
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_17)

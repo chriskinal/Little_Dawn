@@ -82,6 +82,9 @@ void can_update_task(void *arg)
 
     while (1)
     {
+        // Feed the watchdog for this task
+        esp_task_wdt_reset();
+        
         // Update the CAN hardware interface (required when threads are disabled)
         isobus::CANHardwareInterface::update();
 
@@ -285,7 +288,14 @@ extern "C" void app_main(void)
     // Create task for updating CAN hardware (since threads are disabled)
     // Priority 2 for timely CAN updates (idle=0, main loop=1)
     // Increased stack size to 16KB for VT message processing
-    xTaskCreate(can_update_task, "CAN_update", 16384, NULL, 2, NULL);
+    TaskHandle_t canTaskHandle = NULL;
+    xTaskCreate(can_update_task, "CAN_update", 16384, NULL, 2, &canTaskHandle);
+    
+    // Add the CAN task to watchdog monitoring
+    if (canTaskHandle != NULL)
+    {
+        esp_task_wdt_add(canTaskHandle);
+    }
 
     // Initialize and start New Dawn serial communication
     new_dawn_serial_init();
