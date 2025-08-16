@@ -66,6 +66,30 @@ static uint8_t calculateChecksum(const uint8_t* data, size_t len)
     return ~sum;  // One's complement
 }
 
+// Send handshake response to New Dawn
+static void sendHandshakeResponse(void)
+{
+    uint8_t response[8];
+    response[0] = MSG_HANDSHAKE_RESPONSE;  // 0x11
+    response[1] = 0x05;  // Length of data
+    response[2] = 'L';   // 0x4C
+    response[3] = 'D';   // 0x44
+    response[4] = '2';   // 0x32
+    response[5] = 'N';   // 0x4E
+    response[6] = 'D';   // 0x44
+    
+    // Calculate checksum
+    uint8_t sum = 0;
+    for (int i = 0; i < 7; i++) {
+        sum += response[i];
+    }
+    response[7] = ~sum;  // One's complement
+    
+    // Send response
+    uart_write_bytes(NEW_DAWN_UART_NUM, response, 8);
+    ESP_LOGD(TAG, "Sent handshake response to New Dawn");  // Use debug level for periodic messages
+}
+
 // Parse incoming data from New Dawn
 // Expected format: [ID][LENGTH][DATA...][CHECKSUM]
 static bool parse_new_dawn_message(const uint8_t *buffer, size_t len, new_dawn_data_t *data)
@@ -97,6 +121,17 @@ static bool parse_new_dawn_message(const uint8_t *buffer, size_t len, new_dawn_d
                  data->status.speed / 100.0f, data->status.steerAngle / 10.0f);
         return true;
     }
+    else if (msg_id == MSG_HANDSHAKE_REQUEST && msg_len == 5) {
+        // Verify it's "ND2LD"
+        if (buffer[2] == 'N' && buffer[3] == 'D' && buffer[4] == '2' && 
+            buffer[5] == 'L' && buffer[6] == 'D') {
+            ESP_LOGI(TAG, "Received handshake request from New Dawn");
+            sendHandshakeResponse();
+            return true;
+        }
+        ESP_LOGW(TAG, "Invalid handshake request data");
+        return false;
+    }
     
     ESP_LOGW(TAG, "Unknown message ID: 0x%02X", msg_id);
     return false;
@@ -106,6 +141,8 @@ void new_dawn_serial_task(void *arg)
 {
     uint8_t buffer[NEW_DAWN_BUF_SIZE];
     int buffer_pos = 0;
+    uint32_t lastHandshakeTime = 0;
+    const uint32_t HANDSHAKE_INTERVAL_MS = 2500; // Send handshake every 2.5 seconds
     
     ESP_LOGI(TAG, "Serial task started");
     
@@ -114,6 +151,12 @@ void new_dawn_serial_task(void *arg)
              NEW_DAWN_UART_NUM, NEW_DAWN_TX_PIN, NEW_DAWN_RX_PIN);
     
     while (1) {
+        // Send periodic handshake response
+        uint32_t currentTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        if (currentTime - lastHandshakeTime >= HANDSHAKE_INTERVAL_MS) {
+            sendHandshakeResponse();
+            lastHandshakeTime = currentTime;
+        }
         // Read data from UART
         int len = uart_read_bytes(NEW_DAWN_UART_NUM, 
                                   buffer + buffer_pos, 

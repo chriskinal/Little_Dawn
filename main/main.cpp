@@ -25,6 +25,7 @@
 #include "vt_object_ids.h"
 #include "manual_pool.h"
 #include "new_dawn_serial.h"
+#include "version.h"
 
 static const char *TAG = "LITTLE_DAWN";
 
@@ -128,6 +129,10 @@ void can_update_task(void *arg)
 
 extern "C" void app_main(void)
 {
+    ESP_LOGI(TAG, "===========================================");
+    ESP_LOGI(TAG, "%s", VERSION_FULL);
+    ESP_LOGI(TAG, "Build: %s", BUILD_DATE);
+    ESP_LOGI(TAG, "===========================================");
     ESP_LOGI(TAG, "Little Dawn Starting...");
 
     // Initialize LED

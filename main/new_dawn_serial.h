@@ -15,6 +15,8 @@
 
 // Message IDs
 #define MSG_MACHINE_STATUS    0x01
+#define MSG_HANDSHAKE_REQUEST 0x10
+#define MSG_HANDSHAKE_RESPONSE 0x11
 
 // Machine status structure (must match New Dawn)
 typedef struct __attribute__((packed)) {
