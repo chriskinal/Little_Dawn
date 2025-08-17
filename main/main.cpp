@@ -47,9 +47,9 @@ static std::shared_ptr<isobus::VirtualTerminalClient> vtClient = nullptr;
 static uint32_t displayValue = 0;
 static bool vtConnected = false;
 
-// External symbols for LD19 pool
-extern "C" const uint8_t ld19_start[] asm("_binary_LD19_iop_start");
-extern "C" const uint8_t ld19_end[] asm("_binary_LD19_iop_end");
+// External symbols for LD20 pool
+extern "C" const uint8_t ld20_start[] asm("_binary_LD20_iop_start");
+extern "C" const uint8_t ld20_end[] asm("_binary_LD20_iop_end");
 
 void setup_led(void)
 {
@@ -85,7 +85,7 @@ void can_update_task(void *arg)
     {
         // Feed the watchdog for this task
         esp_task_wdt_reset();
-        
+
         // Update the CAN hardware interface (required when threads are disabled)
         isobus::CANHardwareInterface::update();
 
@@ -203,10 +203,10 @@ extern "C" void app_main(void)
     // Create VT client
     vtClient = std::make_shared<isobus::VirtualTerminalClient>(partnerVT, internalECU);
 
-    // Set up the LD19 object pool
-    size_t poolSize = ld19_end - ld19_start;
-    ESP_LOGI(TAG, "Using LD19 object pool (AgIsoStack web editor): %d bytes", poolSize);
-    vtClient->set_object_pool(0, ld19_start, poolSize, "ld19");
+    // Set up the LD20 object pool
+    size_t poolSize = ld20_end - ld20_start;
+    ESP_LOGI(TAG, "Using LD20 object pool (AgIsoStack web editor): %d bytes", poolSize);
+    vtClient->set_object_pool(0, ld20_start, poolSize, "ld20");
 
     // Initialize VT client with data storage callbacks enabled
     vtClient->initialize(true);
@@ -295,7 +295,7 @@ extern "C" void app_main(void)
     // Increased stack size to 16KB for VT message processing
     TaskHandle_t canTaskHandle = NULL;
     xTaskCreate(can_update_task, "CAN_update", 16384, NULL, 2, &canTaskHandle);
-    
+
     // Add the CAN task to watchdog monitoring
     if (canTaskHandle != NULL)
     {
